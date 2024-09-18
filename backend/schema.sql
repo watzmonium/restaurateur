@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS "users" CASCADE;
 DROP TABLE IF EXISTS "restaurants" CASCADE;
 DROP TABLE IF EXISTS "reviews" CASCADE;
-DROP TABLE IF EXISTS "usersRestaurants" CASCADE;
+DROP TABLE IF EXISTS "users_restaurants" CASCADE;
 
 CREATE TABLE "users" (
   "id" int PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY,
@@ -21,7 +21,8 @@ CREATE TABLE "reviews" (
   "restaurant_id" int REFERENCES "restaurants" ("id"),
   "dish_name" text NOT NULL,
   "rating" int CHECK (rating >= 1 AND rating <= 5),
-  "review" text 
+  "review" text,
+  "date" timestamp NOT NULL default NOW()
 );
 
 CREATE TABLE "users_restaurants" (
