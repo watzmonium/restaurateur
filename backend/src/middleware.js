@@ -1,3 +1,6 @@
+import jwt from 'jsonwebtoken'
+import config from './config';
+
 const logInfo = (...params) => {
   console.log(...params);
 };
@@ -20,19 +23,39 @@ const unknownEndpoint = (request, response) => {
 };
 
 const errorHandler = (error, request, response, next) => {
-//   logError(error.message);
-//   logError(request);
-//   if (error.name === 'CastError') {
-//     return response.status(400).send({ error: 'malformatted id' });
-//   } else if (error.name === 'ValidationError') {
-//     return response.status(400).json({ error: error.message });
-//   }
+  logError(error.message);
+  logError(request);
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
+  }
 
   next(error);
+};
+
+const authenticateJWT = (request, response, next) => {
+    const authHeader = request.headers.authorization;
+
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+
+        jwt.verify(token, config.JWT_SECRET_KEY, (err, user) => {
+            if (err) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+
+            req.user = user;
+            next();
+        });
+    } else {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
 };
 
 export default {
   requestLogger,
   unknownEndpoint,
   errorHandler,
+  authenticateJWT,
 };

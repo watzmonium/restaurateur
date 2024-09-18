@@ -2,33 +2,6 @@ import express from 'express';
 
 const reviewsRouter = express.Router();
 
-const mockReviews = [
-    {
-        id: 1,
-        restaurantId: 1,
-        dishName: 'tuna',
-        userId: 1,
-        rating: 3,
-        review: 'it was fine.'
-    },
-      {
-        id: 2,
-        restaurantId: 3,
-        dishName: 'clams casino',
-        userId: 2,
-        rating: 5,
-        review: 'best clams casino this side of the mississippi'
-    },
-      {
-        id: 3,
-        restaurantId: 2,
-        dishName: 'beans',
-        userId: 3,
-        rating: 1,
-        review: 'beans yum yum.'
-    },
-]
-
 reviewsRouter.get('/', (req, res) => {
    res.json(mockReviews)
 })

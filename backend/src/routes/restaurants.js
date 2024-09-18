@@ -2,30 +2,6 @@ import express from "express";
 
 const restaurantRouter = express.Router();
 
-const mockRestaurants = [
-  {
-    id: 1,
-    googleId: 1,
-    usersRestaurants: [1, 3],
-    name: "italian",
-    rating: 5,
-  },
-  {
-    id: 2,
-    googleId: 2,
-    usersRestaurants: [1],
-    name: "chinese",
-    rating: 3,
-  },
-  {
-    id: 3,
-    googleId: 3,
-    usersRestaurants: [2, 3],
-    name: "american",
-    rating: 1,
-  },
-];
-
 restaurantRouter.get("/", (req, res) => {
   res.json(mockRestaurants);
 });
