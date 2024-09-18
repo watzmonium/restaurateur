@@ -137,6 +137,59 @@ paths:
         "500":
           description: Server error (failed to insert data)
 
+  /restaurants/search:
+    get:
+      summary: Search for restaurants based on text query
+      description: |
+        This route accepts a text query and searches for restaurants using the Google Places API. 
+        The route requires JWT authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+          description: The text query for the restaurant search, e.g., "restaurants in Sydney".
+      responses:
+        "200":
+          description: A list of restaurants matching the query
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  restaurants:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the restaurant
+                        address:
+                          type: string
+                          description: Formatted address of the restaurant
+                        rating:
+                          type: number
+                          description: The restaurant's average rating
+                          example: 4
+                        userRatingsTotal:
+                          type: integer
+                          description: Number of user ratings
+                          example: 200
+                        placeId:
+                          type: string
+                          description: Google Places ID for the restaurant
+                          example: "ChIJN1t_tDeuEmsRUsoyG83frY4"
+        "400":
+          description: Invalid query parameter
+        "401":
+          description: Unauthorized - JWT token missing or invalid
+        "500":
+          description: Error occurred while fetching data from Google Places API
+
   /restaurants/{restaurantId}:
     get:
       summary: Get details of a specific restaurant, including reviews

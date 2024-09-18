@@ -1,6 +1,7 @@
 import express from "express";
-import pgpool from "../db";
 
+import pgpool from "../db";
+import config from "../config";
 import middleware from "../middleware";
 
 const restaurantRouter = express.Router();
@@ -63,6 +64,46 @@ restaurantRouter.post("/", middleware.authenticateJWT, async (req, res) => {
     res.status(500).json({ error: "Error inserting restaurant and user relationship" });
   } finally {
     client.release();
+  }
+});
+
+restaurantRouter.get("/search", async (req, res) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return res.status(400).json({ error: "Query parameter is required" });
+  }
+
+  const googlePlacesApiKey = config.GOOGLE_CLOUD_API_KEY; // Store your API key in .env
+
+  try {
+    const googlePlacesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(
+      query
+    )}&key=${googlePlacesApiKey}`;
+
+    const response = await fetch(googlePlacesUrl);
+
+    const data = await response.json();
+
+    if (data.status !== "OK") {
+      return res.status(500).json({
+        error: "Failed to fetch data from Google Places API",
+        details: data.status,
+      });
+    }
+
+    const restaurants = data.results.map((place) => ({
+      name: place.name,
+      address: place.formatted_address,
+      avgRating: parseInt(place.rating),
+      userRatingsTotal: place.user_ratings_total,
+      placeId: place.place_id,
+    }));
+
+    res.status(200).json({ restaurants });
+  } catch (error) {
+    console.error("Error querying Google Places API:", error);
+    res.status(500).json({ error: "An error occurred while fetching data" });
   }
 });
 
