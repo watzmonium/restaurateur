@@ -91,11 +91,15 @@ paths:
   /restaurants:
     get:
       summary: Get all unique restaurants
+      security:
+        - bearerAuth: []
       responses:
         "200":
           description: List of all restaurants
         "404":
           description: No restaurants found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
     post:
       summary: Add a new restaurant
       requestBody:
@@ -114,7 +118,7 @@ paths:
                 rating:
                   type: integer
                   example: 4
-      rresponses:
+      responses:
         "201":
           description: Restaurant created and associated with the user
           content:
@@ -129,7 +133,7 @@ paths:
         "400":
           description: Bad request (missing restaurant ID, name, or rating)
         "401":
-          description: Unauthorized (JWT missing or invalid)
+          $ref: "#/components/responses/UnauthorizedError"
         "500":
           description: Server error (failed to insert data)
 
@@ -179,6 +183,8 @@ paths:
           description: Bad request, name or rating missing
         "404":
           description: Restaurant not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
     delete:
       summary: Delete a restaurant (requires ownership check)
       security:
@@ -196,3 +202,142 @@ paths:
           description: Permission denied, cannot delete restaurant
         "404":
           description: Restaurant not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /reviews:
+    post:
+      summary: Create a new review (JWT required)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                restaurantId:
+                  type: integer
+                  example: 1
+                dishName:
+                  type: string
+                  example: "Pasta"
+                rating:
+                  type: integer
+                  example: 4
+                review:
+                  type: string
+                  example: "Delicious pasta!"
+              required:
+                - restaurantId
+                - dishName
+                - rating
+                - review
+      responses:
+        "201":
+          description: Review created successfully
+        "400":
+          description: Invalid request data
+        "403":
+          description: User is not authorized to create a review for this restaurant
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /reviews/{reviewId}:
+    get:
+      summary: Get a specific review by ID (JWT required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Review data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  restaurant_id:
+                    type: integer
+                  dish_name:
+                    type: string
+                  rating:
+                    type: number
+                  review:
+                    type: string
+        "403":
+          description: User is not authorized to access this review
+        "404":
+          description: Review not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+    patch:
+      summary: Update a review (JWT required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dishName:
+                  type: string
+                  example: "Updated dish"
+                rating:
+                  type: integer
+                  example: 4
+                review:
+                  type: string
+                  example: "Updated review text"
+              required:
+                - dishName
+                - rating
+                - review
+      responses:
+        "200":
+          description: Review updated successfully
+        "400":
+          description: Invalid request data
+        "403":
+          description: User is not authorized to update this review
+        "404":
+          description: Review not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+    delete:
+      summary: Delete a review by ID (JWT required)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Review deleted successfully
+        "403":
+          description: User is not authorized to delete this review
+        "404":
+          description: Review not found
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"

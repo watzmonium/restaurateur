@@ -69,24 +69,29 @@ restaurantRouter.post("/", middleware.authenticateJWT, async (req, res) => {
 restaurantRouter.get("/:restaurantId", middleware.authenticateJWT, async (req, res) => {
   let { restaurantId } = req.params;
   restaurantId = parseInt(restaurantId);
-  if (!hasOwnershipOfRestaurant(req.user.userId, restaurantId)) {
+
+  const hasOwnership = await hasOwnershipOfRestaurant(req.user.userId, restaurantId);
+  if (!hasOwnership) {
     return res
       .status(403)
       .json({ error: "user is not authorized to acces this resource" });
   }
   const sql = `SELECT 
                  res.*,
-                 JSONB_AGG(
+                 COALESCE(
+                  JSONB_AGG(
                     jsonb_build_object(
-                            'id', rev.id,
-                            'dish_name', rev.dish_name,
-                            'rating', rev.rating,
-                            'review', rev.review,
-                            'date', rev.date
-                        )
-                ) FILTER (WHERE rev.id IS NOT NULL) AS reviews
+                      'id', rev.id,
+                      'dish_name', rev.dish_name,
+                      'rating', rev.rating,
+                      'review', rev.review,
+                      'date', rev.date
+                    )
+                  ) FILTER (WHERE rev.id IS NOT NULL), 
+                  '[]'::jsonb
+                ) AS reviews
                FROM restaurants res
-               JOIN reviews rev ON res.id = rev.restaurant_id
+               LEFT JOIN reviews rev ON res.id = rev.restaurant_id
                WHERE res.id = $1
                GROUP BY res.id;`;
   const result = await pgpool.query(sql, [restaurantId]);
@@ -99,7 +104,9 @@ restaurantRouter.get("/:restaurantId", middleware.authenticateJWT, async (req, r
 restaurantRouter.patch("/:restaurantId", middleware.authenticateJWT, async (req, res) => {
   let { restaurantId } = req.params;
   restaurantId = parseInt(restaurantId);
-  if (!hasOwnershipOfRestaurant(req.user.userId, restaurantId)) {
+
+  const hasOwnership = await hasOwnershipOfRestaurant(req.user.userId, restaurantId);
+  if (!hasOwnership) {
     return res
       .status(403)
       .json({ error: "user is not authorized to acces this resource" });
@@ -128,7 +135,8 @@ restaurantRouter.delete(
     let { restaurantId } = req.params;
     restaurantId = parseInt(restaurantId);
 
-    if (!hasOwnershipOfRestaurant(req.user.userId, restaurantId)) {
+    const hasOwnership = await hasOwnershipOfRestaurant(req.user.userId, restaurantId);
+    if (!hasOwnership) {
       return res
         .status(403)
         .json({ error: "user is not authorized to acces this resource" });
@@ -153,7 +161,7 @@ const hasOwnershipOfRestaurant = async (userId, restaurantId) => {
 
   const result = await pgpool.query(ownershipSql, [userId, restaurantId]);
 
-  return result.row && result.row[0];
+  return result.rows && result.rows.length > 0;
 };
 
 export default restaurantRouter;
