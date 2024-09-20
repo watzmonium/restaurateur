@@ -1,43 +1,44 @@
-1. API Development:
-   ● Create a RESTful API that manages two related resources. For example,
-   you could use a simple e-commerce scenario with Products and Orders,
-   where each order can contain multiple products.
-   ● Ensure the API supports basic CRUD operations for both resources.
-   Include routes to:
-   ● Add, update, and remove products.
-   ● Create, update, and view orders. An order should reference one or
-   more products and include quantities for each.
-   ● Handle requests and responses in JSON format.
-   ● Implement middleware for basic authentication to protect the API routes.
-2. External API Integration:
-   ● Integrate an external API to enhance the functionality of your application.
-   For instance, if you’re working with orders, you might integrate a shipping
-   API to fetch real-time shipping costs based on the product size and
-   delivery location.
-   ● Implement robust error handling and basic caching for responses from the
-   external API to improve performance.
+# restaurateur app
 
-3. Database Integration:
-   ● Connect your API to a relational database like PostgreSQL or MySQL.
-   ● Model the database to handle relationships between products and orders
-   effectively. Ensure foreign key constraints are set up for integrity.
-   ● Implement database operations including inserting, retrieving, updating,
-   and deleting data. Make sure to handle operations that involve
-   relationships (e.g., adding products to orders, updating quantities).
+- this is a node express api that runs with docker compose and serves content via nginx
+- the root directory requires a `.env` file with the following fields:
 
-4. Unit Tests:
-   ● Extend unit testing to cover the logic related to handling relations between
-   resources.
-   ● Include tests for each API endpoint, focusing on both individual resource
-   integrity and the integrity of their relationships (e.g., ensuring an order
-   cannot be placed with an invalid product ID).
+  PSQL_DB_NAME=restaurateur
+  PSQL_USERNAME=<username>
+  PSQL_PW=<password>
 
-5. Frontend Application:
-   ● Develop a simple web application that uses the API created in Part 1.
-   ● Implement basic forms to interact with the API: creating, displaying, and
-   deleting resources.
+- the api requires a `.env` file with the following fields:
 
-   ● Provide feedback to the user on successful or failed API interactions. 2. User Authentication:
-   ● Implement a simple login form that interacts with the backend for user
-   authentication.
-   ● Display authenticated user data.
+  NODE_PORT=3000
+
+  PSQL_DB_NAME=restaurateur
+  PSQL_HOST=db
+  PSQL_PORT=5432
+  PSQL_USERNAME=<username>
+  PSQL_PW=<password>
+
+  JWT_SECRET_KEY=<secret>
+
+  GOOGLE_CLOUD_API_KEY=<your api key>
+
+- note the postgres on docker compose is mapped to port 5433 to not collide with a locally running instance of postgres
+- the database should seed automatically upon first run via `docker compose up`, however if it does not, you may have to manually enter the container and seed it with the `schema.sql` file. You can do this the following way:
+
+  1.  docker ps - list all running containters
+  2.  find the postgres:latest container id and copy it
+  3.  in the terminal enter `$docker exec -it <container_id> bash`
+  4.  connect to the postgres db and then manually enter the schema
+
+- docs for the app can be found at /api/docs and routes can be tested that way
+
+## notes
+
+I spent 8 hours on what I have done and did not have time to write a frontend
+I also did not get around to testing, though the swagger UI allowed me to test the functionality of the routes. that would be next, but I think writing tests for every api endpoint as the instructions dictate would be very time consuming even if a best practice.
+the nginx configuration is extremely barebones because this is just for development purposes
+
+## TEST_JWT
+
+you can either register a new user and copy that JWT or use this test one with the seed data provided:
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiYSJ9.wV-VevA2wq4OecelU7vSPgPESQvU2ASFYbdx0LXrbi0

@@ -67,7 +67,7 @@ restaurantRouter.post("/", middleware.authenticateJWT, async (req, res) => {
   }
 });
 
-restaurantRouter.get("/search", async (req, res) => {
+restaurantRouter.get("/search", middleware.authenticateJWT, async (req, res) => {
   const { query } = req.query;
 
   if (!query) {

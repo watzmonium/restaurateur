@@ -151,7 +151,7 @@ paths:
           required: true
           schema:
             type: string
-          description: The text query for the restaurant search, e.g., "restaurants in Sydney".
+          description: The text query for the restaurant search, e.g., "restaurants in Detroit".
       responses:
         "200":
           description: A list of restaurants matching the query
