@@ -4,7 +4,9 @@
 - the root directory requires a `.env` file with the following fields:
 
   PSQL_DB_NAME=restaurateur
+
   PSQL_USERNAME=<username>
+
   PSQL_PW=<password>
 
 - the api requires a `.env` file with the following fields:
@@ -12,9 +14,13 @@
   NODE_PORT=3000
 
   PSQL_DB_NAME=restaurateur
+
   PSQL_HOST=db
+
   PSQL_PORT=5432
+
   PSQL_USERNAME=<username>
+
   PSQL_PW=<password>
 
   JWT_SECRET_KEY=<secret>
